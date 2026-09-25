@@ -1,0 +1,68 @@
+#compdef gi zshgi
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+################################################################################
+
+#######################################
+# Completion function for gitignore (gi / zshgi).
+# Handles completion for options and cached gitignore.io templates.
+# Globals:
+#   HOME
+#   XDG_CACHE_HOME
+#   ZSHGI_DEBUG
+# Arguments:
+#   Command line words to complete.
+# Returns:
+#   0 if completions were added, non-zero otherwise.
+#######################################
+_gi() {
+	emulate -L zsh
+	setopt extended_glob
+
+	((ZSHGI_DEBUG)) && setopt LOCAL_OPTIONS WARN_CREATE_GLOBAL
+
+	local curcontext="$curcontext" state line
+
+	_arguments -C \
+		'(-h --help)'{-h,--help}'[show help message]' \
+		'(-l --list)'{-l,--list}'[list available templates]' \
+		'(-v --verbose)'{-v,--verbose}'[show detailed run messages]' \
+		'(-n --dry-run)'{-n,--dry-run}'[display output without writing to file]' \
+		'--overwrite[overwrite existing file instead of appending]' \
+		'(-o --output)'{-o,--output}'[specify path to output file]:output file:_files' \
+		'*: :->templates' && return 0
+
+	case "$state" in
+	templates)
+		local templates
+		templates=$(_zshgi_get_templates | sed '/^$/d')
+		templates=(${(f)templates})
+
+		# Remove matched part from completion (keep already typed templates)
+		compset -P '*,'
+
+		local -a expl
+		_wanted templates expl 'gitignore template' compadd -q -S ',' -a templates
+		;;
+	esac
+}
+
+_gi "$@"
+
+# vim: ft=zsh:fdm=indent:ts=4:et:sts=4:sw=4:

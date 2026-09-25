@@ -1,0 +1,22 @@
+[*.zsh,_gi]
+# like -i=4
+indent_style = space
+indent_size = 4
+
+language_dialect   = zsh
+simplify           = true
+binary_next_line   = true
+case_indent        = true
+space_redirects    = true
+keep_padding       = true
+# --func-next-line
+function_next_line = true
+block_next_line    = true
+minify             = false
+
+# Ignore the entire ".history" directory when calling shfmt on directories,
+# such as "shfmt -l -w .". When formatting files directly,
+# like "shfmt -w .history/foo.sh" or "shfmt --filename=.history/foo.sh",
+# the ignore logic is applied only when the --apply-ignore flag is given.
+[.history/**]
+ignore = true
