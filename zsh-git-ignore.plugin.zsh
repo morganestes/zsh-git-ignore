@@ -269,16 +269,16 @@ alias ${ZSH_GI_CMD:-gi}='zsh_gi'
 # -------------------------------------------------
 _zsh_gi_setup_completion() {
 	local cmd="${ZSH_GI_CMD:-gi}"
-    if (($+functions[compdef])); then
-        compdef _gi "$cmd" 2>/dev/null
-    fi
-    autoload -Uz add-zsh-hook
+	if (($+functions[compdef])); then
+		compdef _gi "$cmd" 2>/dev/null
+	fi
+	autoload -Uz add-zsh-hook
 	add-zsh-hook -D precmd _zsh_gi_setup_completion
 }
 
 if (($+functions[compdef])); then
 	compdef _gi "${ZSH_GI_CMD:-gi}" 2>/dev/null
 else
-    autoload -Uz add-zsh-hook
+	autoload -Uz add-zsh-hook
 	add-zsh-hook precmd _zsh_gi_setup_completion
 fi
