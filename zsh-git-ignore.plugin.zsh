@@ -189,6 +189,7 @@ zsh_gi() {
 
 	# Support comma- and space-separated template names
 	local p
+	local arg
 	for arg in "$@"; do
 		local -a parts=("${(@s:,:)arg}")
 		for p in "${parts[@]}"; do
