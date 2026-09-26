@@ -102,6 +102,17 @@ gi --list
 
 ---
 
+## ⚙️ Configuration
+
+The plugin can be customized via environment variables:
+
+- **`ZSH_GI_CMD`** – Change the command name (default: `gi`). Set this variable before sourcing the plugin to use a different command, e.g., `export ZSH_GI_CMD=gitignore`.
+- **`ZSH_GI_CACHE_TTL`** – Cache duration for the template list in seconds (default: `604800` seconds = 7 days). Set to a custom value to control how often the plugin refreshes the list, e.g., `export ZSH_GI_CACHE_TTL=$((60*60*24))` for a one‑day cache.
+
+These variables are read by the plugin at load time.
+
+---
+
 ## 🔁 Completion
 
 The plugin registers a Zsh completion function (`_gi`) for the command name.  It works out‑of‑the‑box once the plugin is sourced **and** the Zsh completion system is initialised:
