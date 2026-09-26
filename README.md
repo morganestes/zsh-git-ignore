@@ -67,7 +67,7 @@ antigen bundle morganestes/zsh-git-ignore
 
 ## 🚀 Usage
 
-The plugin defines the command **`gi`** (or whatever you set via `$ZSHGI_CMD`).
+The plugin defines the command **`gi`** (or whatever you set via `$ZSH_GI_CMD`).
 
 ```shell
 gi [OPTIONS] TEMPLATE1[,TEMPLATE2,...]

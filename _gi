@@ -1,4 +1,4 @@
-#compdef gi zshgi
+#compdef gi zsh_gi
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -20,12 +20,12 @@
 ################################################################################
 
 #######################################
-# Completion function for gitignore (gi / zshgi).
+# Completion function for gitignore (gi / zsh_gi).
 # Handles completion for options and cached gitignore.io templates.
 # Globals:
 #   HOME
 #   XDG_CACHE_HOME
-#   ZSHGI_DEBUG
+#   ZSH_GI_DEBUG
 # Arguments:
 #   Command line words to complete.
 # Returns:
@@ -35,7 +35,7 @@ _gi() {
 	emulate -L zsh
 	setopt extended_glob
 
-	((ZSHGI_DEBUG)) && setopt LOCAL_OPTIONS WARN_CREATE_GLOBAL
+	((ZSH_GI_DEBUG)) && setopt LOCAL_OPTIONS WARN_CREATE_GLOBAL
 
 	local curcontext="$curcontext" state line
 
@@ -51,7 +51,7 @@ _gi() {
 	case "$state" in
 	templates)
 		local templates
-		templates=$(_zshgi_get_templates | sed '/^$/d')
+		templates=$(_zsh_gi_get_templates | sed '/^$/d')
 		templates=(${(f)templates})
 
 		# Remove matched part from completion (keep already typed templates)

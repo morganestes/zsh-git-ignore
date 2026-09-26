@@ -12,16 +12,16 @@
 }
 
 # ----------------------------------------
-# Function: _zshgi_usage
+# Function: _zsh_gi_usage
 # Description: Print usage/help information for the plugin.
 # Globals:
-#   ZSHGI_CMD – command name (default: gi).
+#   ZSH_GI_CMD – command name (default: gi).
 # Arguments: none.
 # Returns: outputs help text to STDOUT.
 # ----------------------------------------
-_zshgi_usage() {
+_zsh_gi_usage() {
 	setopt localoptions nopromptsubst
-	local cmd="${ZSHGI_CMD:-gi}"
+	local cmd="${ZSH_GI_CMD:-gi}"
 	print -P "%F{green}%BUsage:%b%f %F{blue}%B$cmd%b %F{yellow}[OPTIONS]...%f TEMPLATES[...]
 
 %F{green}%BOptions:%b%f
@@ -44,14 +44,14 @@ _zshgi_usage() {
 }
 
 # ----------------------------------------
-# Function: _zshgi_get_templates
+# Function: _zsh_gi_get_templates
 # Description: Retrieve the list of available .gitignore templates from the gitignore.io API, with caching.
 # Globals:
 #   XDG_CACHE_HOME or $HOME/.cache – cache directory.
 # Arguments: none.
 # Returns: prints template names to STDOUT, returns 0 on success.
 # ----------------------------------------
-_zshgi_get_templates() {
+_zsh_gi_get_templates() {
 	local cache_dir="${XDG_CACHE_HOME:-$HOME/.cache}/zsh-git-ignore"
 	local cache_file="$cache_dir/templates"
 	local -a templates
@@ -93,14 +93,14 @@ _zshgi_get_templates() {
 }
 
 # ----------------------------------------
-# Function: _zshgi_validate_templates
+# Function: _zsh_gi_validate_templates
 # Description: Verify that supplied template names exist in the known template list.
 # Globals: none.
 # Arguments:
 #   $1 – comma‑separated list of template names.
 # Returns: 0 if all valid, non‑zero otherwise (error messages printed to STDERR).
 # ----------------------------------------
-_zshgi_validate_templates() {
+_zsh_gi_validate_templates() {
 	if [ $# -eq 0 ]; then
 		return 1
 	fi
@@ -110,7 +110,7 @@ _zshgi_validate_templates() {
 	local templates_string
 	local invalid_templates=()
 
-	templates_string=$(_zshgi_get_templates | sed '/^$/d')
+	templates_string=$(_zsh_gi_get_templates | sed '/^$/d')
 	templates=(${(f)templates_string})
 
 	for t in "${templates_to_check[@]}"; do
@@ -119,7 +119,7 @@ _zshgi_validate_templates() {
 
 	if ((${#invalid_templates[@]})); then
 		print -P "%F{red}Error: The following templates do not exist: ${(j[, ])invalid_templates}%f" >&2
-		print -P "Run %F{blue}${ZSHGI_CMD:-gi} --list%f to see available templates." >&2
+		print -P "Run %F{blue}${ZSH_GI_CMD:-gi} --list%f to see available templates." >&2
 		return 1
 	fi
 
@@ -127,23 +127,22 @@ _zshgi_validate_templates() {
 }
 
 # ----------------------------------------
-# Function: zshgi
+# Function: zsh_gi
 # Description: Main entry point – parse options, fetch templates, and write/apply to .gitignore.
 # Globals:
-#   ZSHGI_CMD – command alias (default: gi).
-#   ZSHGI_DEBUG – enable debug output when non‑zero.
+#   ZSH_GI_CMD – command alias (default: gi).
+#   ZSH_GI_DEBUG – enable debug output when non‑zero.
 # Arguments: options and template names.
 # Returns: 0 on success, non‑zero on error.
 # ----------------------------------------
-zshgi() {
+zsh_gi() {
 	emulate -L zsh
 	setopt extended_glob
-	((ZSHGI_DEBUG)) && setopt WARN_CREATE_GLOBAL
+	((ZSH_GI_DEBUG)) && setopt WARN_CREATE_GLOBAL
 
 	local -a flag_overwrite flag_verbose flag_help flag_noop flag_list opt_output
 	local arg_filename="${PWD}/.gitignore"
 	local -a input_template_names=()
-	local arg
 
 	zmodload -F zsh/zutil b:zparseopts 2>/dev/null
 	zparseopts -D -E -F -K -- \
@@ -153,19 +152,19 @@ zshgi() {
 		{h,-help}=flag_help \
 		{l,-list}=flag_list \
 		{o,-output}:=opt_output || {
-		_zshgi_usage >&2
+		_zsh_gi_usage >&2
 		return 1
 	}
 
 	[[ "$1" == "--" ]] && shift
 
 	if (($#flag_help)); then
-		_zshgi_usage
+		_zsh_gi_usage
 		return 0
 	fi
 
 	if (($#flag_list)); then
-		_zshgi_get_templates | column -c ${COLUMNS:-80} -x
+		_zsh_gi_get_templates | column -c ${COLUMNS:-80} -x
 		return $?
 	fi
 
@@ -176,7 +175,7 @@ zshgi() {
 	# Require at least one template argument
 	if ((! $#)); then
 		print -P "%F{red}Error: No ignore templates specified.%f" >&2
-		print -P "Run %F{blue}${ZSHGI_CMD:-gi} --list%f to get a list of template names." >&2
+		print -P "Run %F{blue}${ZSH_GI_CMD:-gi} --list%f to get a list of template names." >&2
 		return 1
 	fi
 
@@ -206,7 +205,7 @@ zshgi() {
 	local templates_string="${(j[,])input_template_names}"
 	(($#flag_verbose)) && print -r -- "Templates query: $templates_string"
 
-	if ! _zshgi_validate_templates "$templates_string"; then
+	if ! _zsh_gi_validate_templates "$templates_string"; then
 		return 1
 	fi
 
@@ -248,10 +247,10 @@ zshgi() {
 	fi
 }
 
-alias ${ZSHGI_CMD:-gi}='zshgi'
+alias ${ZSH_GI_CMD:-gi}='zsh_gi'
 
 # ----------------------------------------
-# Function: _zshgi_setup_completion
+# Function: _zsh_gi_setup_completion
 # Description: Hook run at each prompt to register the completion function _gi for the command.
 # Globals: none.
 # Arguments: none.
@@ -267,18 +266,18 @@ alias ${ZSHGI_CMD:-gi}='zshgi'
 #     it removes itself.  This guarantees the completion works regardless of
 #     load order.  Do NOT remove either copy.
 # -------------------------------------------------
-_zshgi_setup_completion() {
-    local cmd="${ZSHGI_CMD:-gi}"
+_zsh_gi_setup_completion() {
+	local cmd="${ZSH_GI_CMD:-gi}"
     if (($+functions[compdef])); then
         compdef _gi "$cmd" 2>/dev/null
     fi
     autoload -Uz add-zsh-hook
-    add-zsh-hook -D precmd _zshgi_setup_completion
+	add-zsh-hook -D precmd _zsh_gi_setup_completion
 }
 
 if (($+functions[compdef])); then
-    compdef _gi "${ZSHGI_CMD:-gi}" 2>/dev/null
+	compdef _gi "${ZSH_GI_CMD:-gi}" 2>/dev/null
 else
     autoload -Uz add-zsh-hook
-    add-zsh-hook precmd _zshgi_setup_completion
+	add-zsh-hook precmd _zsh_gi_setup_completion
 fi
