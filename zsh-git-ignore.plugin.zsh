@@ -56,7 +56,7 @@ _zsh_gi_get_templates() {
 	local cache_file="$cache_dir/templates"
 	local -a templates
 
-	# Cache templates for n days (in seconds). Default is 7 days.
+	# Cache templates for 7 days (604800 seconds)
 	local cache_stale=0
 	if [[ ! -s "$cache_file" ]]; then
 		cache_stale=1
@@ -70,7 +70,7 @@ _zsh_gi_get_templates() {
 		else
 			mtime=$(date -r "$cache_file" +%s 2>/dev/null || echo 0)
 		fi
-		if ((now - mtime > ${ZSH_GI_CACHE_SECONDS:-604800})); then
+		if ((now - mtime > 604800)); then
 			cache_stale=1
 		fi
 	fi
