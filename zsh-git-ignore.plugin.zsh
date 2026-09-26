@@ -70,7 +70,7 @@ _zsh_gi_get_templates() {
 		else
 			mtime=$(date -r "$cache_file" +%s 2>/dev/null || echo 0)
 		fi
-		if ((now - mtime > ${ZSH_GI_CACHE_SECONDS:-604800})); then
+		if ((now - mtime > ${ZSH_GI_CACHE_TTL:-604800})); then
 			cache_stale=1
 		fi
 	fi
